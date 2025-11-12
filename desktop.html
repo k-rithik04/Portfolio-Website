@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Mac 26 Desktop</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configure Inter font --><style>
+        @import url('https://fonts.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Prevent body scroll due to virtual window movement */
+        }
+        /* Custom styles for the resize handles */
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            z-index: 10;
+            opacity: 0; /* Hidden by default */
+        }
+        .window-app:hover .resize-handle {
+            opacity: 1; /* Show on hover for better UX */
+        }
+
+        /* Cursor styles for resizing */
+        .n { top: -5px; left: 0; right: 0; cursor: ns-resize; width: auto; }
+        .s { bottom: -5px; left: 0; right: 0; cursor: ns-resize; width: auto; }
+        .e { right: -5px; top: 0; bottom: 0; cursor: ew-resize; height: auto; }
+        .w { left: -5px; top: 0; bottom: 0; cursor: ew-resize; height: auto; }
+        .nw { top: -5px; left: -5px; cursor: nwse-resize; }
+        .ne { top: -5px; right: -5px; cursor: nesw-resize; }
+        .sw { bottom: -5px; left: -5px; cursor: nesw-resize; }
+        .se { bottom: -5px; right: -5px; cursor: nwse-resize; }
+
+        /* Style for desktop icons */
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 64px; /* Standard icon size */
+            height: 64px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none; /* Prevent text selection */
+            padding: 4px;
+            border-radius: 8px;
+            transition: background-color 0.1s ease-in-out;
+            margin-bottom: 16px; /* Space between icons */
+        }
+        .desktop-icon:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Light hover effect */
+        }
+        /* Style for text beneath the icon */
+        .desktop-icon span {
+            font-size: 0.75rem; /* text-xs */
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.7); /* For readability against wallpaper */
+            margin-top: 4px; /* Space between icon and text */
+        }
+
+        /* Styling for the file icons inside the Finder window */
+        .file-icon {
+            transition: background-color 0.1s ease-in-out;
+            padding: 8px 4px; /* Give touch target space */
+            border-radius: 8px;
+        }
+        .file-icon:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Base style for the new polished icons (iOS/Mac-style) */
+        .modern-icon-base {
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+    </style>
+</head>
+
+<!-- Main website background -->
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center relative">
+
+    <!-- Removed the distracting background image and kept a simple dark background -->
+    <div class="absolute inset-0 bg-gray-800/80 backdrop-blur-sm"></div>
+
+    <header class="absolute top-0 w-full p-4 bg-black/30 backdrop-blur-md z-20 shadow-lg">
+        <nav class="container mx-auto flex justify-between items-center text-sm font-medium">
+            <h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-200">
+                My Mac Website Project
+            </h1>
+            <div class="space-x-6 hidden sm:flex">
+                <a href="#" class="hover:text-cyan-300 transition">About</a>
+                <a href="#" class="hover:text-cyan-300 transition">Features</a>
+                <a href="#" class="hover:text-cyan-300 transition">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Virtual Mac 26 Desktop Window (The Main OS Container) -->
+    <div id="mac-window" class="window-app absolute shadow-2xl rounded-xl overflow-hidden transition-shadow duration-300 hover:shadow-cyan-500/50"
+         style="width: 700px; height: 500px; min-width: 300px; min-height: 200px; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50;">
+
+        <!-- 1. Title Bar (Draggable Area) - TRAFFIC LIGHTS REMOVED AND TITLE CENTERED -->
+        <div id="title-bar" class="title-bar-draggable flex items-center justify-center p-2 h-8 bg-gray-800/80 backdrop-blur-md cursor-grab border-b border-gray-700/50">
+            <!-- Title -->
+            <span class="text-xs font-semibold text-gray-300 select-none">
+                Desktop
+            </span>
+        </div>
+
+        <!-- 2. Window Content Area (The Simulated OS Desktop) -->
+        <div class="w-full h-[calc(100%-32px)] relative bg-cover bg-center overflow-hidden"
+             style="background-image: url('macos-mojave-blue-circles-k33lo8mvjl8omqw8.jpg');"> <!-- Wallpaper Path Confirmed -->
+            
+            <!-- Mock Menu Bar (Top of OS) -->
+            <div class="absolute top-0 left-0 right-0 h-6 bg-black/40 backdrop-blur-sm flex justify-between items-center px-2 text-xs text-white/80 z-20">
+                <div class="flex space-x-3">
+                    <span class="font-bold"></span>
+                    <span>File</span>
+                    <span>Edit</span>
+                    <span>View</span>
+                </div>
+                <!-- Status items reduced to just date/time -->
+                <div class="flex space-x-3">
+                    <span>Mon 12 Nov, 2025</span>
+                </div>
+            </div>
+
+            <!-- Main Desktop Area - Icons -->
+            <div class="p-4 pt-8 h-full overflow-y-auto flex flex-col items-start space-y-2">
+                <!-- Finder Icon (Proper Mac Style Blue Folder) -->
+                <div class="desktop-icon" onclick="openFinderWindow()"> <!-- Changed to call the new function -->
+                    <svg class="w-10 h-10 drop-shadow-lg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="blue-gradient" x1="2" y1="13" x2="22" y2="13" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#3B82F6"/>
+                                <stop offset="1" stop-color="#06B6D4"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M21 8H12L10 6H3C2.44772 6 2 6.44772 2 7V19C2 19.5523 2.44772 20 3 20H21C21.5523 20 22 19.5523 22 19V9C22 8.44772 21.5523 8 21 8Z" fill="url(#blue-gradient)"/>
+                        <path d="M21 8H12L10 6H3V7H10L12 9H21V8Z" fill="white" opacity="0.3"/>
+                    </svg>
+                    <span>Finder</span>
+                </div>
+                <!-- Command Line Terminal Icon (Stylized SVG Terminal) -->
+                <div class="desktop-icon" onclick="console.log('Opening Terminal...')">
+                    <svg class="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 15h4"/>
+                        <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
+                    </svg>
+                    <span>Terminal</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Resize Handles for Main Desktop Window -->
+        <div class="resize-handle n" data-handle="n"></div>
+        <div class="resize-handle s" data-handle="s"></div>
+        <div class="resize-handle e" data-handle="e"></div>
+        <div class="resize-handle w" data-handle="w"></div>
+        <div class="resize-handle nw" data-handle="nw"></div>
+        <div class="resize-handle ne" data-handle="ne"></div>
+        <div class="resize-handle sw" data-handle="sw"></div>
+        <div class="resize-handle se" data-handle="se"></div>
+    </div>
+    
+    <!-- Finder Documents Window (New Application Window) -->
+    <div id="finder-window" class="window-app absolute shadow-2xl rounded-lg overflow-hidden hidden"
+         style="width: 500px; height: 350px; left: 100px; top: 100px; z-index: 60; min-width: 250px; min-height: 150px;">
+        
+        <!-- Title Bar (Traffic lights are preserved here) -->
+        <div id="finder-title-bar" class="title-bar-draggable flex items-center justify-between p-2 h-8 bg-gray-300/80 backdrop-blur-sm cursor-grab border-b border-gray-400">
+            <!-- Controls -->
+            <div class="flex space-x-2 ml-1">
+                <!-- Red Button (Close) -->
+                <div class="w-3 h-3 bg-red-500 rounded-full hover:bg-red-400 transition cursor-pointer" onclick="closeFinderWindow()"></div>
+                <!-- Yellow Button (Minimize) -->
+                <div class="w-3 h-3 bg-yellow-500 rounded-full hover:bg-yellow-400 transition cursor-pointer" onclick="minimizeFinderWindow()"></div>
+                <!-- Green Button (Zoom/Maximize) -->
+                <div class="w-3 h-3 bg-green-500 rounded-full hover:bg-green-400 transition cursor-pointer" onclick="zoomFinderWindow()"></div>
+            </div>
+            <!-- Title -->
+            <span class="text-xs font-semibold text-gray-700 select-none">Documents</span>
+            <!-- Empty space -->
+            <div class="w-12"></div>
+        </div>
+        
+        <!-- Content Area: Updated with LLM Interaction Buttons -->
+        <div class="flex p-4 w-full h-[calc(100%-32px)] overflow-y-auto bg-white/95 text-gray-800 space-x-6">
+            
+            <!-- 1. CV/Resume Icon (PDF Icon) with AI Critique -->
+            <div id="resume-section" class="file-icon text-center w-20 flex flex-col items-center justify-start transition">
+                
+                <svg class="w-12 h-12 modern-icon-base cursor-pointer" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="console.log('Viewing CV/Resume (My_Resume.pdf)')">
+                    <!-- White Document Background (Slightly rounded) -->
+                    <rect x="15" y="10" width="70" height="80" rx="15" fill="#f8f8f8" stroke="#ccc" stroke-width="2"/>
+                    <!-- Folded Corner -->
+                    <path d="M85 25L70 10V25H85Z" fill="#ddd"/>
+                    <!-- PDF Logo (Red rectangle with white text) -->
+                    <rect x="25" y="55" width="50" height="18" rx="4" fill="#E53E3E"/>
+                    <text x="50" y="69" font-family="Inter, sans-serif" font-size="14" fill="white" text-anchor="middle" font-weight="bold">PDF</text>
+                    <!-- Document lines -->
+                    <rect x="30" y="30" width="40" height="4" rx="1" fill="#bbb"/>
+                    <rect x="30" y="40" width="25" height="4" rx="1" fill="#bbb"/>
+                </svg>
+                <span class="text-xs text-gray-800 mt-1">My_Resume.pdf</span>
+                
+                <!-- NEW FEATURE BUTTON: AI Critique -->
+                <button onclick="critiqueResume()" class="mt-2 text-xs px-2 py-1 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition shadow-md whitespace-nowrap">
+                    ✨ AI Critique
+                </button>
+            </div>
+            
+            <!-- 2. Project Descriptions Icon (Modern Folder) with AI Planning -->
+            <div id="projects-section" class="file-icon text-center w-20 flex flex-col items-center justify-start transition">
+                
+                <svg class="w-12 h-12 modern-icon-base cursor-pointer" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="console.log('Opening Project Descriptions Folder')">
+                    <defs>
+                        <linearGradient id="folder-gradient" x1="50" y1="20" x2="50" y2="90" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#FFC700"/>
+                            <stop offset="1" stop-color="#FFA800"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Folder Back Flap and Body -->
+                    <path d="M15 35C15 30 20 30 25 30H45L55 40H85C88.3137 40 91 42.6863 91 46V85C91 88.3137 88.3137 91 85 91H15C11.6863 91 9 88.3137 9 85V46C9 42.6863 11.6863 40 15 40V35" fill="url(#folder-gradient)"/>
+                    <!-- Shadow for Depth -->
+                    <path d="M15 40H85V46H15V40Z" fill="#FFD740" opacity="0.5"/>
+                    <!-- Front Cover Highlight -->
+                    <path d="M15 46H85C88.3137 46 91 48.6863 91 52V85C91 88.3137 88.3137 91 85 91H15C11.6863 91 9 88.3137 9 85V52C9 48.6863 11.6863 46 15 46Z" fill="#FFD740" opacity="0.3"/>
+                </svg>
+
+                <span class="text-xs text-gray-800 mt-1">Projects</span>
+                
+                <!-- NEW FEATURE BUTTON: AI Plan Project -->
+                <button onclick="generateNextSteps()" class="mt-2 text-xs px-2 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition shadow-md whitespace-nowrap">
+                    ✨ Plan Project
+                </button>
+            </div>
+
+            <!-- 3. Application EXE File (Modern App Icon) - No AI feature added here -->
+            <div class="file-icon text-center w-20 flex flex-col items-center justify-start cursor-pointer transition" 
+                 onclick="console.log('Launching Application (App.exe)')">
+                
+                <svg class="w-12 h-12 modern-icon-base" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- App Icon Background (Rounded Square with Gradient) -->
+                    <defs>
+                        <linearGradient id="app-gradient" x1="20" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#4F46E5"/>
+                            <stop offset="1" stop-color="#06B6D4"/>
+                        </linearGradient>
+                    </defs>
+                    <rect x="15" y="15" width="70" height="70" rx="18" fill="url(#app-gradient)"/>
+                    <!-- Highlight/Gloss -->
+                    <path d="M15 33C15 23.0589 23.0589 15 33 15H67C76.9411 15 85 23.0589 85 33V37H15V33Z" fill="white" opacity="0.2"/>
+                    
+                    <!-- Central Gear/Cog Symbol -->
+                    <circle cx="50" cy="50" r="10" fill="white"/>
+                    <path d="M50 25L53.5 35L63.5 31.5L60 41.5L70 45L66.5 55L76.5 58.5L73 68.5L63 65L59.5 75L50 71.5L40.5 75L37 65L27 68.5L23.5 58.5L33.5 55L30 45L40 41.5L36.5 31.5L46.5 35L50 25Z" fill="white"/>
+                </svg>
+
+                <span class="text-xs text-gray-800 mt-1">App.exe</span>
+            </div>
+        </div>
+        
+        <!-- Resize Handles for Finder Window -->
+        <div class="resize-handle n" data-handle="n"></div>
+        <div class="resize-handle s" data-handle="s"></div>
+        <div class="resize-handle e" data-handle="e"></div>
+        <div class="resize-handle w" data-handle="w"></div>
+        <div class="resize-handle nw" data-handle="nw"></div>
+        <div class="resize-handle ne" data-handle="ne"></div>
+        <div class="resize-handle sw" data-handle="sw"></div>
+        <div class="resize-handle se" data-handle="se"></div>
+    </div>
+
+    <!-- LLM Result Modal (Replaces alert() for displaying output) -->
+    <div id="gemini-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center justify-center p-4" onclick="if(event.target.id === 'gemini-modal') hideModal()">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6 flex flex-col transform transition-all duration-300 scale-100">
+            <h2 id="modal-title" class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">AI Output</h2>
+            <div id="modal-content" class="text-gray-700 space-y-3 flex-grow">
+                <!-- Content and loading indicator will go here -->
+            </div>
+            <button onclick="hideModal()" class="mt-6 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition self-end font-medium shadow">
+                Close
+            </button>
+        </div>
+    </div>
+
+
+    <!-- JavaScript for Dragging, Resizing, and LLM Integration -->
+    <script>
+        // --- Core Global State for Drag/Resize ---
+        let currentWindow = null; 
+        let isDragging = false;
+        let isResizing = false;
+        let startX, startY, initialX, initialY, initialW, initialH;
+        let activeHandle = null;
+
+        // State for Finder window zoom functionality
+        let isFinderZoomed = false;
+        let finderInitialState = { x: 100, y: 100, w: 500, h: 350 };
+        
+
+        // --- Z-Index Management (Focus) ---
+        function updateZIndex(element) {
+            const allWindows = document.querySelectorAll('.window-app');
+            let maxZ = 50;
+            allWindows.forEach(w => {
+                const z = parseInt(w.style.zIndex || 0);
+                if (z > maxZ) maxZ = z;
+            });
+            element.style.zIndex = maxZ + 1;
+        }
+
+        // --- Event Handlers (Shared) ---
+        function handleMouseDown(e, windowElement, titleBarElement) {
+            updateZIndex(windowElement);
+            
+            // Ignore traffic lights, content icons, and AI buttons
+            if (e.target.closest('.w-3.h-3') || e.target.closest('.file-icon') || e.target.tagName === 'BUTTON') return; 
+
+            currentWindow = windowElement;
+
+            if (e.target.classList.contains('resize-handle')) {
+                // Resizing Logic
+                isResizing = true;
+                activeHandle = e.target.getAttribute('data-handle');
+            } else if (e.target.closest(`#${titleBarElement.id}`)) {
+                // Dragging Logic
+                isDragging = true;
+                // Add classes for visual feedback on drag (for both dark/light title bars)
+                if (windowElement.id === 'mac-window') {
+                    titleBarElement.classList.add('bg-gray-800/90');
+                } else {
+                    titleBarElement.classList.add('bg-gray-300/90');
+                }
+                windowElement.classList.add('shadow-xl');
+            } else {
+                return; // Clicked inside window content but not title/handle
+            }
+
+            startX = e.clientX;
+            startY = e.clientY;
+            initialX = windowElement.offsetLeft;
+            initialY = windowElement.offsetTop;
+            initialW = windowElement.offsetWidth;
+            initialH = windowElement.offsetHeight;
+            e.preventDefault();
+        }
+
+        function handleMouseMove(e) {
+            if (!currentWindow) return;
+            
+            let minWidth = 300;
+            let minHeight = 200;
+
+            if (currentWindow.id === 'finder-window') {
+                // Finder window has smaller minimum sizes
+                minWidth = 250;
+                minHeight = 150;
+            }
+
+            if (isDragging) {
+                // Dragging Logic
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                currentWindow.style.left = `${initialX + dx}px`;
+                currentWindow.style.top = `${initialY + dy}px`;
+                currentWindow.style.transform = 'none';
+
+            } else if (isResizing && activeHandle) {
+                // Resizing Logic
+                // If resized while zoomed, disable zoom state
+                if (currentWindow.id === 'finder-window' && isFinderZoomed) {
+                    isFinderZoomed = false;
+                }
+
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                
+                let newW = initialW;
+                let newH = initialH;
+                let newX = initialX;
+                let newY = initialY;
+
+                // Handle North/South
+                if (activeHandle.includes('s')) { newH = Math.max(initialH + dy, minHeight); }
+                if (activeHandle.includes('n')) {
+                    newH = Math.max(initialH - dy, minHeight);
+                    if (newH > minHeight) { newY = initialY + dy; }
+                }
+
+                // Handle East/West
+                if (activeHandle.includes('e')) { newW = Math.max(initialW + dx, minWidth); }
+                if (activeHandle.includes('w')) {
+                    newW = Math.max(initialW - dx, minWidth);
+                    if (newW > minWidth) { newX = initialX + dx; }
+                }
+
+                // Apply changes
+                currentWindow.style.width = `${newW}px`;
+                currentWindow.style.height = `${newH}px`;
+                currentWindow.style.left = `${newX}px`;
+                currentWindow.style.top = `${newY}px`;
+                currentWindow.style.transform = 'none';
+
+                // Update initial state if we are resizing the finder window
+                if (currentWindow.id === 'finder-window') {
+                    finderInitialState = {
+                        x: newX,
+                        y: newY,
+                        w: newW,
+                        h: newH
+                    };
+                }
+            }
+        }
+
+        function handleMouseUp() {
+            if (!currentWindow) return;
+
+            if (isDragging) {
+                const titleBarElement = currentWindow.querySelector('.title-bar-draggable');
+                // Remove specific drag highlight classes
+                titleBarElement.classList.remove('bg-gray-800/90', 'bg-gray-300/90');
+                currentWindow.classList.remove('shadow-xl');
+
+                // If dragging the finder window, update the stored initial state
+                if (currentWindow.id === 'finder-window') {
+                    finderInitialState.x = currentWindow.offsetLeft;
+                    finderInitialState.y = currentWindow.offsetTop;
+                }
+            }
+            
+            isDragging = false;
+            isResizing = false;
+            activeHandle = null;
+            currentWindow = null;
+        }
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+
+
+        // --- Finder Window Functions ---
+
+        const macWindow = document.getElementById('mac-window');
+        const finderWindow = document.getElementById('finder-window');
+
+        function openFinderWindow() {
+            finderWindow.classList.remove('hidden');
+            updateZIndex(finderWindow);
+        }
+
+        function closeFinderWindow() {
+            finderWindow.classList.add('hidden');
+        }
+
+        function minimizeFinderWindow() {
+            // Simulates minimization by hiding the window
+            finderWindow.classList.add('hidden');
+            console.log('Finder window minimized to dock (hidden in this demo).');
+        }
+
+        function zoomFinderWindow() {
+            updateZIndex(finderWindow);
+
+            if (!isFinderZoomed) {
+                // Maximize/Zoom
+                // 1. Store current state (which might be a custom resized state)
+                finderInitialState = {
+                    x: finderWindow.offsetLeft,
+                    y: finderWindow.offsetTop,
+                    w: finderWindow.offsetWidth,
+                    h: finderWindow.offsetHeight
+                };
+                
+                // 2. Calculate Maximized State relative to the main mac-window
+                const padding = 20;
+                const newW = macWindow.offsetWidth - 2 * padding;
+                const newH = macWindow.offsetHeight - 2 * padding;
+                
+                // Apply maximized state
+                finderWindow.style.left = `${macWindow.offsetLeft + padding}px`;
+                finderWindow.style.top = `${macWindow.offsetTop + padding}px`;
+                finderWindow.style.width = `${newW}px`;
+                finderWindow.style.height = `${newH}px`;
+                
+                isFinderZoomed = true;
+            } else {
+                // Restore to initial state
+                finderWindow.style.left = `${finderInitialState.x}px`;
+                finderWindow.style.top = `${finderInitialState.y}px`;
+                finderWindow.style.width = `${finderInitialState.w}px`;
+                finderWindow.style.height = `${finderInitialState.h}px`;
+                
+                isFinderZoomed = false;
+            }
+            // Ensure no lingering transforms
+            finderWindow.style.transform = 'none';
+        }
+
+
+        // --- LLM API INTEGRATION ---
+        
+        const LLM_MOCK_CONTENT = {
+            resume: `
+                Name: Jane Doe
+                Title: Full Stack Developer
+                Summary: Highly motivated developer with 5 years experience in React, Node.js, and MongoDB. Seeking a challenging role to leverage skills in scalable web application development.
+                Experience:
+                - Lead Developer at TechCorp (3 years): Managed team of 5, delivered 3 major product launches, reduced latency by 40%.
+                - Software Engineer at StartUpX (2 years): Developed core API services using Python and Flask.
+                Skills: JavaScript, React, Node.js, Python, MongoDB, AWS, Git, Agile.
+                Education: B.S. in Computer Science, State University.
+            `,
+            projectDescription: `
+                Project Title: Virtual Mac Desktop
+                Goal: Create a fully responsive, interactive web application that simulates a classic Mac operating system environment.
+                Current State: Implemented draggable/resizable windows, Mac-style traffic lights (close, minimize, zoom), and mock file icons.
+                Next Step Idea: Need ideas to turn this static demo into a usable utility. Should integrate modern tech while maintaining the retro aesthetic.
+            `
+        };
+
+        const API_KEY = ""; // Provided by environment
+        const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
+        const MAX_RETRIES = 3;
+
+        // --- Modal Functions ---
+        function showModal(title, contentHtml) {
+            const modalDiv = document.getElementById('gemini-modal');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-content').innerHTML = contentHtml;
+            modalDiv.classList.remove('hidden');
+            // Ensure modal content is on top of everything
+            updateZIndex(modalDiv); 
+        }
+
+        function hideModal() {
+            document.getElementById('gemini-modal').classList.add('hidden');
+        }
+
+
+        // --- API Utility Function with Exponential Backoff ---
+        async function callGeminiApi(userQuery, systemPrompt, enableGrounding = false) {
+            let responseText = "An error occurred while fetching data from the AI service. Check the console for details.";
+            let sources = [];
+            
+            showModal("AI Processing...", `<div class="text-center py-8">
+                <svg class="animate-spin h-8 w-8 text-indigo-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-4 text-sm font-medium text-gray-600">Analyzing data, please wait...</p>
+            </div>`);
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                tools: enableGrounding ? [{ "google_search": {} }] : undefined
+            };
+
+            for (let i = 0; i < MAX_RETRIES; i++) {
+                try {
+                    const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.status === 429) { // Too many requests
+                        if (i < MAX_RETRIES - 1) {
+                            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+                            continue; // Retry
+                        } else {
+                            throw new Error("API rate limit exceeded after all retries.");
+                        }
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const candidate = result.candidates?.[0];
+
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        responseText = candidate.content.parts[0].text;
+                        
+                        // Extract grounding sources if available
+                        const groundingMetadata = candidate.groundingMetadata;
+                        if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                            sources = groundingMetadata.groundingAttributions
+                                .map(attribution => ({
+                                    uri: attribution.web?.uri,
+                                    title: attribution.web?.title,
+                                }))
+                                .filter(source => source.uri && source.title);
+                        }
+                    } else {
+                        responseText = "AI response was empty or malformed.";
+                    }
+
+                    break; // Success
+                } catch (error) {
+                    console.error(`Gemini API call failed (Attempt ${i + 1}):`, error);
+                    if (i === MAX_RETRIES - 1) {
+                        responseText = `Failed to connect to the AI service after ${MAX_RETRIES} attempts. Error: ${error.message}`;
+                    }
+                }
+            }
+
+            // Format output for modal
+            let formattedText = `<div class="prose max-w-none text-sm leading-relaxed">${responseText.replace(/\n/g, '<br>')}</div>`;
+            
+            if (sources.length > 0) {
+                formattedText += `<h3 class="mt-4 text-sm font-semibold text-gray-800">Sources:</h3>`;
+                formattedText += `<ul class="list-disc list-inside text-xs space-y-1 ml-4">`;
+                sources.forEach(source => {
+                    formattedText += `<li><a href="${source.uri}" target="_blank" class="text-blue-600 hover:underline">${source.title}</a></li>`;
+                });
+                formattedText += `</ul>`;
+            }
+
+            return formattedText;
+        }
+
+
+        // --- Feature Functions ---
+        async function critiqueResume() {
+            const resumeData = LLM_MOCK_CONTENT.resume;
+            const systemInstruction = `You are a Senior Technical Recruiter. Your task is to critique the provided resume text. Identify three strengths and three areas for improvement, focusing on clarity, metrics, and relevance for a developer role. Format your response with clear bolded headings for 'Strengths' and 'Areas for Improvement', and use numbered lists.`;
+            
+            const userQuery = `Critique the following resume:\n\n${resumeData}`;
+            
+            const resultHtml = await callGeminiApi(userQuery, systemInstruction, false);
+            showModal("AI Resume Critique", resultHtml);
+        }
+
+        async function generateNextSteps() {
+            const project = LLM_MOCK_CONTENT.projectDescription;
+            const systemInstruction = `You are a Product Manager and UX Designer. Based on the provided project description for a 'Virtual Mac Desktop', suggest three actionable 'Next Steps' that integrate modern web technology (like Firebase, PWA, or advanced APIs) and one innovative, LLM-powered feature that fits the Mac desktop simulation theme. Format the suggestions with bolded titles and numbered lists.`;
+
+            const userQuery = `Suggest next steps for this project:\n\n${project}`;
+
+            const resultHtml = await callGeminiApi(userQuery, systemInstruction, true); // Using grounding for modern tech ideas
+            showModal("AI Project Planning", resultHtml);
+        }
+
+        // --- Initialization ---
+
+        function initWindow(windowId, titleBarId) {
+            const windowElement = document.getElementById(windowId);
+            const titleBarElement = document.getElementById(titleBarId);
+            
+            windowElement.addEventListener('mousedown', (e) => handleMouseDown(e, windowElement, titleBarElement));
+            windowElement.classList.add('window-app');
+        }
+
+        // Initialize both the desktop container and the application window
+        initWindow('mac-window', 'title-bar');
+        initWindow('finder-window', 'finder-title-bar');
+
+
+        // --- Window centering onload logic ---
+        window.onload = () => {
+             // Center the main desktop container
+             const macWindowHeight = macWindow.offsetHeight;
+             const macWindowWidth = macWindow.offsetWidth;
+             macWindow.style.top = `${(window.innerHeight - macWindowHeight) / 2}px`;
+             macWindow.style.left = `${(window.innerWidth - macWindowWidth) / 2}px`;
+             macWindow.style.transform = 'none'; 
+             
+             // Position the finder window relative to the main window
+             finderWindow.style.top = `${macWindow.offsetTop + 50}px`;
+             finderWindow.style.left = `${macWindow.offsetLeft + 50}px`;
+             finderWindow.style.transform = 'none';
+             
+             // Store the calculated initial position after centering/positioning
+             finderInitialState = {
+                 x: finderWindow.offsetLeft,
+                 y: finderWindow.offsetTop,
+                 w: finderWindow.offsetWidth,
+                 h: finderWindow.offsetHeight
+             };
+        }
+
+    </script>
+</body>
+</html>

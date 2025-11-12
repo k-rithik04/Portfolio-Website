@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>RV Emulator</title>
+        <link rel="preload" href="data/loader.js" as="script">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#0E0E0E">
+
+        <style>
+            /* 🍎 Apple-Inspired UI/UX CSS with Live Wallpaper Effect */
+
+            /* Keyframes for the Subtle Background Animation (Live Wallpaper Effect) */
+            @keyframes animate-gradient {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+
+            :root {
+                --main-color: #007AFF; /* Apple Blue */
+                --text-color: #EFEFEF;
+                --bg-color: rgba(255, 255, 255, 0.1); 
+                --dark-bg: #1C1C1E; 
+                --card-bg: rgba(255, 255, 255, 0.08); /* Frosted Glass Base */
+                --border-color: rgba(255, 255, 255, 0.15); 
+                --radius: 0.75em; 
+            }
+            body, html {
+                height: 100%;
+                color: var(--text-color);
+            }
+            body {
+                margin: 0;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                
+                /* LIVE WALLPAPER BACKGROUND EFFECT */
+                background: linear-gradient(-45deg, #1C1C1E, #331A47, #1A3347, #1C1C1E);
+                background-size: 400% 400%;
+                animation: animate-gradient 20s ease infinite; 
+
+                /* Apple System Font Stack (SF Pro equivalent) */
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+                font-size: 16px;
+            }
+            #box, #top {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+            }
+            /* Header Styling */
+            #top h1 {
+                font-weight: 600; 
+                font-size: 2.2em;
+                margin-bottom: 0.2em;
+                color: white;
+            }
+            .logo {
+                width: 100px; 
+                height: 100px;
+                filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.4));
+                opacity: 0.9;
+            }
+            
+            /* Core Upload Box - Frosted Glass Effect (Made Smaller and Sleeker) */
+            #box {
+                color: var(--text-color);
+                height: 16em; /* Reduced Height */
+                width: 24em; /* Reduced Width */
+                max-width: 85%;
+                max-height: 80%;
+                
+                /* Frosted Glass Look */
+                background-color: var(--card-bg); 
+                backdrop-filter: blur(20px) saturate(1.8); 
+                -webkit-backdrop-filter: blur(20px) saturate(1.8); 
+
+                border-radius: var(--radius);
+                border: 1px solid var(--border-color); 
+                position: relative;
+                transition: border-color 0.3s, background-color 0.3s, color 0.3s, transform 0.15s;
+                overflow: hidden;
+                font-weight: 500; 
+                font-size: 17px; /* Slightly reduced font size for smaller box */
+                margin: 20px;
+                text-align: center;
+                padding: 20px;
+                cursor: pointer;
+                
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 0 4px rgba(0, 0, 0, 0.1); 
+            }
+            #box:hover {
+                border-color: var(--main-color);
+                color: white;
+                background-color: rgba(255, 255, 255, 0.12);
+                transform: translateY(-2px); 
+            }
+            #box[drag] {
+                border-color: var(--main-color);
+                color: white;
+                background-color: rgba(0, 122, 255, 0.2); 
+                transform: translateY(0);
+            }
+            #input {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                cursor: inherit;
+            }
+            #display {
+                width: 100%;
+                height: 100%
+            }
+            
+            /* Button and Select Styling */
+            select, button {
+                padding: 0.8em 1.2em; 
+                margin: 0.5em;
+                width: 18em;
+                max-width: 100%;
+                font-family: inherit;
+                font-weight: 500; 
+                font-size: 17px; 
+                
+                background-color: #333333; 
+                color: var(--text-color);
+                border-radius: 0.6em; 
+                border: 1px solid #444444; 
+                cursor: pointer;
+                transition: all 0.2s ease-in-out;
+                outline: none;
+            }
+            /* Primary button style (Apple Blue accent) */
+            button {
+                background-color: var(--main-color);
+                color: white;
+                border: none;
+                font-weight: 600; 
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            
+            select:hover, select:focus {
+                background-color: #555555;
+                color: white;
+                border-color: #666666;
+            }
+            
+            button:hover {
+                background-color: #3B97FF; 
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            }
+            button:active {
+                transform: translateY(0); 
+                background-color: #0066CC;
+            }
+            
+            #top {
+                margin: 20px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="top">
+            <h1>RV Emulator</h1>
+            <img src="docs/Logo-light.png" alt="Logo" class="logo">
+        </div>
+        <div id="box">
+            <input type="file" id="input" title="Upload ROM" accept="*.zip,*.7z,*.nes,*.smc,*.z64,*.gba,*.nds,*" />
+            Drag ROM file or click here
+        </div>
+
+        <script type="module">
+            // Use const/let for block scoping and immutability (smarter memory management)
+            const input = document.getElementById("input");
+            const box = document.getElementById("box");
+
+            // Define config state in one place for clarity
+            const config = {
+                debug: false,
+                threads: false,
+                browserMode: null,
+                romFile: null,
+                romUrl: null,
+                gameName: null
+            };
+
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+
+            // AI/Agent Integration: a self-aware diagnostics function
+            const AI_Diagnostics = () => {
+                const threadStatus = config.threads ? "🟢 Enabled" : "🔴 Disabled";
+                const debugStatus = config.debug ? "⚠️ Enabled (Performance impact)" : "✅ Disabled";
+                
+                // My analysis suggests SharedArrayBuffer is key for speed
+                console.log("%c🤖 AI Agent: Code Integrated", "color: #007AFF; font-weight: bold; font-size: 14px;");
+                console.log(`\nEmulator Status Report:\n- Threads (SAB): ${threadStatus}\n- Debug Mode: ${debugStatus}`);
+                
+                if (!config.threads) {
+                    console.warn(">> Optimization Suggestion: For maximum performance, ensure your server sends 'Cross-Origin-Opener-Policy: same-origin' and 'Cross-Origin-Embedder-Policy: require-corp' headers to enable Web Workers/Threads.");
+                }
+            };
+            
+            // --- Configuration Parsing (Moved to a non-blocking initial block) ---
+
+            if (parseInt(urlParams.get("debug")) === 1 || urlParams.get("debug") === "true") {
+                config.debug = true;
+                console.log("Debug is enabled");
+            } else {
+                console.log("Debug is disabled");
+            }
+
+            // Check for threads immediately using the modern API check
+            if ((parseInt(urlParams.get("threads")) === 1 || urlParams.get("threads") === "true") && window.crossOriginIsolated) {
+                config.threads = true;
+                console.log("Threads are enabled via Cross-Origin Isolation");
+            } else if (urlParams.get("threads") === "true") {
+                 console.warn("Threads disabled — Cross-Origin Isolation (COOP/COEP headers) is required for SharedArrayBuffer.");
+            }
+            
+            config.browserMode = urlParams.get("browserMode");
+
+            if (urlParams.get("rom")) {
+                config.romUrl = urlParams.get("rom");
+                console.log(`Loading ROM from URL: roms/${config.romUrl}`);
+                run(false, config.romUrl);
+            }
+
+            // Execute AI self-check after initial configuration
+            AI_Diagnostics();
+
+            // --- Core Emulation Logic (Simplified and retaining the fix) ---
+
+            const detectCore = async (ext) => {
+                // Autodetect based on extension (faster path)
+                if (["fds","nes","unif","unf"].includes(ext)) return "nes";
+                if (["smc","fig","sfc","gd3","gd7","dx2","bsx","swc"].includes(ext)) return "snes";
+                if (["z64","n64"].includes(ext)) return "n64";
+                if (["pce"].includes(ext)) return "pce";
+                if (["ngp","ngc"].includes(ext)) return "ngp";
+                if (["ws","wsc"].includes(ext)) return "ws";
+                if (["col","cv"].includes(ext)) return "coleco";
+                if (["d64"].includes(ext)) return "vice_x64sc";
+                if (["md","sg","smd","gen"].includes(ext)) return "segaMD";
+                if (["nds","gba","gb","z64","n64"].includes(ext)) return ext;
+
+                // Fallback to manual selection (blocking path, wrapped in a Promise)
+                return await new Promise(resolve => {
+                    const coreValues = {
+                        "Nintendo 64": "n64", "Nintendo Game Boy": "gb", "Nintendo Game Boy Advance": "gba",
+                        "Nintendo DS": "nds", "Nintendo Entertainment System": "nes", 
+                        "Super Nintendo Entertainment System": "snes", "PlayStation": "psx",
+                        "Virtual Boy": "vb", "Sega Mega Drive": "segaMD", 
+                        "Sega Master System": "segaMS", "Sega CD": "segaCD",
+                        "Atari Lynx": "lynx", "Sega 32X": "sega32x", "Atari Jaguar": "jaguar",
+                        "Sega Game Gear": "segaGG", "Sega Saturn": "segaSaturn",
+                        "Atari 7800": "atari7800", "Atari 2600": "atari2600",
+                        "Arcade": "arcade", "NEC TurboGrafx-16/SuperGrafx/PC Engine": "pce", 
+                        "NEC PC-FX": "pcfx", "SNK NeoGeo Pocket (Color)": "ngp",
+                        "Bandai WonderSwan (Color)": "ws", "ColecoVision": "coleco",
+                        "Commodore 64": "vice_x64sc", "Commodore 128": "vice_x128",
+                        "Commodore VIC20": "vice_xvic", "Commodore Plus/4": "vice_xplus4",
+                        "Commodore PET": "vice_xpet",
+                    };
+                    if (config.threads) {
+                        coreValues["DOSBOX-PURE"] = "dosbox_pure";
+                        coreValues["PlayStation Portable"] = "ppsspp";
+                    }
+
+                    const select = document.createElement("select");
+                    const button = document.createElement("button");
+                    
+                    for (const type in coreValues) {
+                        const option = document.createElement("option");
+                        option.value = coreValues[type];
+                        option.textContent = type;
+                        select.appendChild(option);
+                    }
+
+                    button.onclick = () => resolve(select.value);
+                    button.textContent = "Load Game";
+                    
+                    // Use modern replaceChildren() for cleaner DOM swap
+                    box.replaceChildren(select, button);
+                });
+            };
+
+            async function run(upload, file) {
+                const fileName = upload ? input.files[0].name : file;
+                const url = upload ? input.files[0] : `roms/${file}`;
+                
+                // Correct file name parsing (retaining previous turn's fix for robustness)
+                const parts = fileName.split(".");
+                const ext = parts.pop();
+                const gameName = parts.join("."); 
+
+                const core = await detectCore(ext); // Wait for core selection/detection
+
+                // --- DOM Cleanup & Player Setup ---
+                const div = document.createElement("div");
+                const sub = document.createElement("div");
+                const script = document.createElement("script");
+
+                sub.id = "game";
+                div.id = "display";
+
+                const top = document.getElementById("top");
+                top.remove();
+                box.remove();
+                div.appendChild(sub);
+                document.body.appendChild(div);
+
+                // Setup global EmulatorJS vars
+                window.EJS_player = "#game";
+                window.EJS_gameName = gameName;
+                window.EJS_biosUrl = "";
+                window.EJS_gameUrl = url;
+                window.EJS_core = core;
+                window.EJS_pathtodata = "data/";
+                window.EJS_startOnLoaded = true;
+                window.EJS_DEBUG_XX = config.debug;
+                window.EJS_disableDatabases = true;
+                window.EJS_threads = config.threads;
+
+                if (config.browserMode) {
+                    window.EJS_browserMode = config.browserMode;
+                }
+
+                // Load the emulator script
+                script.src = "data/loader.js";
+                // Use a non-blocking append to body instead of document.head
+                document.body.appendChild(script);
+            }
+
+            // --- Event Listeners (Using modern syntax) ---
+            
+            // Asynchronous handler for file input
+            input.onchange = async () => {
+                if (input.files.length) {
+                    run(true);
+                }
+            }
+
+            // Drag and Drop Handlers
+            box.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                box.setAttribute("drag", true);
+            });
+            box.addEventListener("dragleave", () => box.removeAttribute("drag"));
+            box.addEventListener("drop", (e) => {
+                e.preventDefault();
+                box.removeAttribute("drag");
+
+                if (e.dataTransfer.files.length) {
+                    // Modern DataTransfer API usage
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(e.dataTransfer.files[0]);
+                    input.files = dataTransfer.files;
+                    run(true);
+                }
+            });
+        </script>
+    </body>
+</html>

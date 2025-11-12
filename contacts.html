@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rithik's Portfolio | AI & ML Engineer</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* ===========================
+            APPLE-INSPIRED FONT STACK
+            =========================== */
+        /* Prioritizes SF Pro/San Francisco on Apple devices for a native feel */
+        :root {
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --color-primary: #007aff; /* Apple Blue */
+            --color-primary-dark: #005ac8;
+            --color-text: #1d1d1f; /* Near Black */
+            --color-secondary-text: #6e6e73; /* System Gray */
+            --bg-light: #f5f5f7; /* Very light system background */
+            --window-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.9);
+        }
+
+        /* ===========================
+            GLOBAL LAYOUT & FONT
+            =========================== */
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            font-family: var(--font-stack);
+            background-color: var(--bg-light);
+            color: var(--color-text);
+            display: flex;
+            min-height: 200vh;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1, h2, h3, h4 { font-weight: 600; }
+        p, a, li { font-weight: 400; }
+
+        /* ===========================
+            MAC WINDOW & GLASS STYLES
+            (The Core Apple Aesthetic)
+            =========================== */
+        .mac-window {
+            width: 100%;
+            max-width: 980px;
+            background: var(--window-bg);
+            /* Softer, more ethereal shadow */
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: relative;
+            /* Frosted Glass Effect */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); 
+            border-radius: 12px;
+            margin-top: 40px;
+            margin-bottom: 80px;
+        }
+        
+        .titlebar {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            background: rgba(255, 255, 255, 0.5); /* Very light titlebar */
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            user-select: none;
+        }
+        .title-center {
+            flex: 1; text-align: center; font-weight: 500; color: #444;
+            font-size: 0.9rem; letter-spacing: -0.2px;
+        }
+
+        /* Traffic Lights */
+        .traffic { display: flex; gap: 7px; align-items: center; }
+        .traffic .dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.08); 
+            cursor: default;
+        }
+        .dot.red { background: #ff5f57; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+        .mac-content { padding: 32px; }
+
+        /* Content Panel (Inner Card) */
+        .panel, .glass-stat-card {
+            border-radius: 10px;
+            padding: 20px;
+            background: rgba(249, 249, 252, 0.9); /* Lighter than the main window */
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            text-align: left;
+        }
+
+        /* ===========================
+            BUTTON STYLES (Clean & Flat)
+            =========================== */
+        .clean-button {
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-weight: 500;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Primary Button: Apple Blue */
+        .clean-primary-button { 
+            background-color: var(--color-primary); 
+            color: white;
+        }
+        .clean-primary-button:hover { 
+            background-color: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 122, 255, 0.3);
+        }
+
+        /* Secondary Button: Clean Gray/White */
+        .clean-secondary-button {
+            background-color: white; 
+            color: var(--color-primary);
+            border: 1px solid rgba(0, 122, 255, 0.4);
+        }
+        .clean-secondary-button:hover {
+            background-color: #f0f0f5;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* ===========================
+            NAVIGATION & SIDEBAR
+            =========================== */
+        /* Top Pill Nav */
+        nav.top-nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000; transition: transform 0.3s ease-out;
+        }
+        .top-nav a {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            color: var(--color-text);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            transition: all 0.2s ease;
+        }
+        .top-nav a:hover, .top-nav a[aria-current="page"] {
+            background: white;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Left Sidebar (Desktop only) */
+        .glass-wrapper { display: none; }
+        @media (min-width: 768px) {
+            .glass-wrapper {
+                display: flex; position: fixed; width: 180px; top: 50%; left: 0;
+                transform: translateY(-50%); flex-direction: column; gap: 1rem;
+                padding: 1rem 0; z-index: 900;
+            }
+        }
+        .glass-wrapper a {
+            background: transparent;
+            color: var(--color-secondary-text);
+            padding: 0.5rem 0.5rem;
+            border-radius: 4px;
+            width: 100%;
+            text-align: right;
+            border-right: 2px solid transparent;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .glass-wrapper a:hover {
+            color: var(--color-text);
+        }
+        .glass-wrapper a.active {
+            color: var(--color-primary);
+            font-weight: 600;
+            border-right: 2px solid var(--color-primary);
+        }
+
+        /* ===========================
+            TIMELINE STYLES (Simplified)
+            =========================== */
+        .timeline { position: relative; max-width: 90%; margin: 0 auto; padding-left: 20px; } 
+        .timeline::after { 
+            content: ''; width: 2px; background-color: #e0e0e0; top: 0; 
+            bottom: 0; left: 16px; margin-left: -1px; position: absolute;
+        } 
+        .timeline-item { padding: 10px 0 20px 30px; position: relative; } 
+        .timeline-item::before { 
+            content: ''; width: 10px; height: 10px; left: 12px; 
+            background-color: var(--color-primary); 
+            border: 2px solid white; border-radius: 50%; top: 24px; 
+            z-index: 1; position: absolute; box-shadow: 0 0 0 2px #f9f9f9;
+        } 
+
+        /* ===========================
+            DOCK (Social Links)
+            =========================== */
+        .mac-dock {
+            position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); 
+            display: flex; padding: 8px 10px; gap: 8px; border-radius: 20px; 
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
+            border: 1px solid rgba(255, 255, 255, 0.8); z-index: 950;
+        }
+        .dock-item {
+            width: 44px; height: 44px; border-radius: 10px; display: flex;
+            align-items: center; justify-content: center; transition: transform .18s cubic-bezier(.2,.8,.2,1);
+            color: #fff; flex-shrink: 0; position: relative;
+        }
+        .dock-item:hover { transform: translateY(-8px) scale(1.15); z-index: 30; }
+        .dock-item svg { width: 22px; height: 22px; }
+        .dock-github { background: #111; }
+        .dock-linkedin { background: #0A66C2; }
+        .dock-instagram { background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af); border-radius: 50%; } 
+        .dock-leetcode { background: #FFA116; color: #111; border-radius: 50%; } 
+
+        /* Main Content Wrapper Padding adjustment for sidebar */
+        main.main-content-wrapper { padding: 60px 20px 20px 20px; flex: 1; position: relative; z-index: 10; }
+        @media (min-width: 768px) {
+            main.main-content-wrapper { padding: 60px 40px 20px 220px; }
+        }
+        section { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
+    </style>
+</head>
+
+<body>
+    <div class="pulse" aria-hidden="true" style="opacity: 0.2; filter: blur(150px); animation: none;"></div>
+    <div class="pulse" aria-hidden="true" style="opacity: 0.2; filter: blur(150px); animation: none;"></div>
+    <div class="pulse" aria-hidden="true" style="opacity: 0.2; filter: blur(150px); animation: none;"></div>
+
+    <nav class="top-nav" role="navigation" aria-label="Main navigation">
+        <ul class="flex gap-4 list-none p-0 m-0">
+            <li><a href="index.html" aria-current="page">Home</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="contacts.html">Contacts</a></li>
+        </ul>
+    </nav>
+
+    <aside class="glass-wrapper" aria-label="Sidebar navigation">
+        <a href="#about" class="active">About Me</a>
+        <a href="#experience">Experience</a>
+        <a href="#education">Education</a>
+        <a href="#projects">Projects</a>
+        <a href="#certifications">Certifications</a>
+    </aside>
+
+    <main class="main-content-wrapper">
+
+        <section id="about">
+            <div class="mac-window">
+                <header class="titlebar">
+                    <div class="traffic" aria-hidden="true">
+                        <div class="dot red" title="Close"></div>
+                        <div class="dot yellow" title="Minimize"></div>
+                        <div class="dot green" title="Maximize"></div>
+                    </div>
+                    <div class="title-center">About Rithik</div>
+                    <div style="width:40px"></div>
+                </header>
+
+                <div class="mac-content">
+                    <div class="panel p-6 sm:p-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                            
+                            <div class="lg:col-span-2 text-left">
+                                <hgroup class="mb-6">
+                                    <p class="text-3xl sm:text-4xl font-semibold text-gray-500" style="margin:0;line-height:1;">AI | ML Engineer</p>
+                                    <h1 class="text-5xl sm:text-6xl font-bold text-gray-900 mt-2 mb-4 tracking-tight">Rithik.</h1>
+                                    <p id="tagline-text" class="text-gray-700 text-xl font-medium mb-4">
+                                        Crafting intuitive and aesthetically pleasing digital experiences.
+                                    </p>
+                                    <p class="text-gray-600 text-base leading-relaxed max-w-xl">
+                                        I'm a Computer Science Undergraduate at the University of Kelaniya, specializing in Artificial Intelligence. I work on projects that combine AI, Machine Learning, and Software Development — building scalable, efficient, and user-friendly systems.
+                                    </p>
+                                </hgroup>
+
+                                <div class="flex flex-col sm:flex-row gap-4 mt-6">
+                                    <a href="#projects" class="clean-button clean-primary-button px-6 py-3 text-lg font-medium">
+                                        View My Projects
+                                    </a>
+                                    <button onclick="window.generateTagline()" id="tagline-button" class="clean-button clean-secondary-button px-6 py-3 text-lg font-medium">
+                                        Get a New Tagline (AI Demo)
+                                    </button>
+                                </div>
+                                <p id="tagline-status" class="text-center sm:text-left mt-3 text-sm font-medium text-blue-600 min-h-[1.25rem]"></p>
+                            </div>
+
+                            <div class="flex flex-col items-center gap-6">
+                                <div class="w-48 h-48 sm:w-64 sm:h-64 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-200" style="box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                                    <img src="https://picsum.photos/400/400?grayscale" alt="Rithik's Profile Photo" class="w-full h-full object-cover">
+                                </div>
+
+                                <div class="flex flex-wrap justify-center gap-3 text-center">
+                                    <div class="glass-stat-card text-sm p-3">
+                                        <p class="font-bold text-xl text-blue-600">3+</p>
+                                        <p class="text-gray-600">Years Experience</p>
+                                    </div>
+                                    <div class="glass-stat-card text-sm p-3">
+                                        <p class="font-bold text-xl text-blue-600">15+</p>
+                                        <p class="text-gray-600">Projects Built</p>
+                                    </div>
+                                    <div class="glass-stat-card text-sm p-3">
+                                        <p class="font-bold text-xl text-blue-600">A.I. Focused</p>
+                                        <p class="text-gray-600">Specialization</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience">
+            <div class="mac-window">
+                <header class="titlebar">
+                    <div class="traffic" aria-hidden="true">
+                        <div class="dot red" title="Close"></div>
+                        <div class="dot yellow" title="Minimize"></div>
+                        <div class="dot green" title="Maximize"></div>
+                    </div>
+                    <div class="title-center">Experience Timeline</div>
+                    <div style="width:40px"></div>
+                </header>
+
+                <div class="mac-content p-6 sm:p-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center tracking-tight">Professional Journey</h2>
+                    
+                    <div class="timeline text-left">
+
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-gray-900">Freelance AI & ML Developer</h3>
+                            <p class="text-blue-600 font-semibold mb-1">Fiverr, Freelancer</p>
+                            <p class="text-sm text-gray-500 mb-3">Oct 2025 - Present | Colombo, Sri Lanka</p>
+                            <div class="panel p-4">
+                                <ul class="list-disc ml-5 space-y-2 text-gray-700 text-base">
+                                    <li>Designing and developing intelligent applications integrating machine learning models with web technologies.</li>
+                                    <li>Implementing data preprocessing, model training, and evaluation pipelines using Python, TensorFlow, and PyTorch.</li>
+                                    <li>Creating responsive, dynamic web interfaces using React, HTML/CSS, and developing robust server logic with Java (Spring Boot) and Node.js.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-gray-900">Founder</h3>
+                            <p class="text-blue-600 font-semibold mb-1">Pulse Brew</p>
+                            <p class="text-sm text-gray-500 mb-3">Oct 2025 - Present | Colombo, Sri Lanka</p>
+                            <div class="panel p-4">
+                                <p class="text-gray-700 text-base">Managing and nurturing the next generation of emerging Tech talent by connecting skilled undergrads with real-world projects to build impactful experience.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-gray-900">Trainee Retail Sales</h3>
+                            <p class="text-blue-600 font-semibold mb-1">Damn Fine Coffee Company</p>
+                            <p class="text-sm text-gray-500 mb-3">Feb 2025 - Sep 2025 | Colombo 00003</p>
+                            <div class="panel p-4">
+                                <ul class="list-disc ml-5 space-y-2 text-gray-700 text-base">
+                                    <li>Achieved LKR 1M+ in sales and consistently exceeded monthly targets via proactive customer engagement.</li>
+                                    <li>Boosted retail and partner store sales of coffee products by over 25%.</li>
+                                    <li>Managed a newly established Experience Center, overseeing operations and sales performance.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-gray-900">Intern</h3>
+                            <p class="text-blue-600 font-semibold mb-1">Sampath Bank</p>
+                            <p class="text-sm text-gray-500 mb-3">Apr 2023 - Sep 2023 | Southern Province, Sri Lanka</p>
+                            <div class="panel p-4">
+                                <ul class="list-disc ml-5 space-y-2 text-gray-700 text-base">
+                                    <li>Contributed to customer acquisition, successfully adding 20+ new mobile banking users daily.</li>
+                                    <li>Assisted customers with onboarding and troubleshooting issues for the mobile banking app.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="education">
+            <div class="mac-window">
+                <header class="titlebar">
+                    <div class="traffic" aria-hidden="true">
+                        <div class="dot red" title="Close"></div>
+                        <div class="dot yellow" title="Minimize"></div>
+                        <div class="dot green" title="Maximize"></div>
+                    </div>
+                    <div class="title-center">Education & Learning</div>
+                    <div style="width:40px"></div>
+                </header>
+
+                <div class="mac-content p-6 sm:p-8 flex flex-col gap-6">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2 text-center tracking-tight">Academic Qualifications</h2>
+
+                    <div class="glass-stat-card w-full p-6 text-left shadow-lg">
+                        <p class="text-2xl font-bold text-blue-700 tracking-tight">University of Kelaniya Sri Lanka</p>
+                        <p class="text-xl font-medium text-gray-800">BSc (Honours) in Computer Science (Specializing in AI)</p>
+                        <p class="text-base text-gray-600 mt-1">Expected Graduation: September 2029</p>
+                    </div>
+
+                    <div class="glass-stat-card w-full p-6 text-left shadow-lg">
+                        <p class="text-2xl font-bold text-blue-700 tracking-tight">Mahinda College Galle</p>
+                        <p class="text-xl font-medium text-gray-800">Physical Sciences</p>
+                        <p class="text-base text-gray-600 mt-1">2021 - 2024</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects">
+            <div class="mac-window">
+                <header class="titlebar">
+                    <div class="traffic" aria-hidden="true">
+                        <div class="dot red" title="Close"></div>
+                        <div class="dot yellow" title="Minimize"></div>
+                        <div class="dot green" title="Maximize"></div>
+                    </div>
+                    <div class="title-center">Featured Projects</div>
+                    <div style="width:40px"></div>
+                </header>
+
+                <div class="mac-content p-6 sm:p-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center tracking-tight">My Creations</h2>
+                    
+                    <div class="panel p-6 shadow-xl w-full max-w-2xl mx-auto">
+                        <h3 class="text-2xl font-bold text-blue-700 mb-2 tracking-tight">Web Emulator (GBA)</h3>
+                        <p class="text-sm font-medium text-gray-500 mb-4">Web Development & Gaming | JavaScript/HTML5</p>
+                        
+                        <p class="text-gray-700 mb-6">
+                            A standalone Game Boy Advance (GBA) emulator built entirely for the web. This project provides a full-featured, cross-platform gaming experience directly in the browser, optimized for both PC and mobile devices. It showcases deep understanding of performance optimization, JavaScript engine mechanics, and responsive UI design.
+                        </p>
+
+                        <div class="flex gap-4">
+                            <a href="index.html" class="clean-button clean-primary-button px-5 py-2 text-sm font-medium">
+                                Check It Out (Mobile View)
+                            </a>
+                            <a href="desktop.html" class="clean-button clean-secondary-button px-5 py-2 text-sm font-medium">
+                                More (Desktop View)
+                            </a>
+                        </div>
+                    </div>
+                    </div>
+            </div>
+        </section>
+
+        <section id="certifications">
+            <div class="mac-window">
+                <header class="titlebar">
+                    <div class="traffic" aria-hidden="true">
+                        <div class="dot red" title="Close"></div>
+                        <div class="dot yellow" title="Minimize"></div>
+                        <div class="dot green" title="Maximize"></div>
+                    </div>
+                    <div class="title-center">Certifications</div>
+                    <div style="width:40px"></div>
+                </header>
+
+                <div class="mac-content p-6 sm:p-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center tracking-tight">Badges of Skill</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-4xl">
+                        
+                        <div class="glass-stat-card p-4 text-left border-l-4 border-blue-500">
+                            <p class="font-bold text-lg text-gray-900">SQL (Basic) Certificate</p>
+                            <p class="text-sm text-gray-600">Issued by: [Source/Platform]</p>
+                        </div>
+                        <div class="glass-stat-card p-4 text-left border-l-4 border-blue-500">
+                            <p class="font-bold text-lg text-gray-900">Introduction to GitHub Concepts</p>
+                            <p class="text-sm text-gray-600">Issued by: [Source/Platform]</p>
+                        </div>
+                        <div class="glass-stat-card p-4 text-left border-l-4 border-blue-500">
+                            <p class="font-bold text-lg text-gray-900">Introduction to SQL</p>
+                            <p class="text-sm text-gray-600">Issued by: [Source/Platform]</p>
+                        </div>
+                        <div class="glass-stat-card p-4 text-left border-l-4 border-blue-500">
+                            <p class="font-bold text-lg text-gray-900">Build your business brand using Canva</p>
+                            <p class="text-sm text-gray-600">Issued by: [Source/Platform]</p>
+                        </div>
+                        <div class="glass-stat-card p-4 text-left border-l-4 border-blue-500">
+                            <p class="font-bold text-lg text-gray-900">Certificate in Communication Skills</p>
+                            <p class="text-sm text-gray-600">Issued by: [Source/Platform]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section style="min-height: 50vh;">
+            </section> 
+
+    </main>
+    
+    <div class="mac-dock" role="navigation" aria-label="Social dock">
+        <a class="dock-item dock-github" href="https://github.com/k_rithik04" target="_blank" rel="noopener noreferrer" title="GitHub">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55 0-.27-.01-1.02-.02-2-3.2.7-3.88-1.38-3.88-1.38-.53-1.36-1.3-1.72-1.3-1.72-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.74 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.56-.29-5.25-1.28-5.25-5.71 0-1.26.45-2.29 1.19-3.09-.12-.3-.52-1.51.11-3.15 0 0 .98-.31 3.22 1.19a11.1 11.1 0 012.94-.4c1 .01 2.01.13 2.95.39 2.23-1.5 3.21-1.19 3.21-1.19.64 1.64.24 2.85.12 3.15.74.8 1.19 1.83 1.19 3.09 0 4.44-2.69 5.42-5.25 5.7.42.36.79 1.09.79 2.2 0 1.59-.01 2.87-.01 3.26 0 .3.2.67.79.56C20.71 21.38 24 17.07 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+        </a>
+
+        <a class="dock-item dock-linkedin" href="https://www.linkedin.com/in/krithik04" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.59c0-1.34-.47-2.25-1.66-2.25-1.26 0-1.96.84-1.96 2.25v5.59h-3.55V9.6h3.41v1.63c.48-.92 1.49-1.73 3.04-1.73 2.4 0 4.24 1.56 4.24 4.92v5.03zM5.34 8.68a2.05 2.05 0 110-4.1 2.05 2.05 0 010 4.1zM7.11 20.45H3.57V9.6h3.54v10.85z"/></svg>
+        </a>
+
+        <a class="dock-item dock-instagram" href="https://www.instagram.com/k_rithik04/" target="_blank" rel="noopener noreferrer" title="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 6.5A4.5 4.5 0 1016.5 13 4.5 4.5 0 0012 8.5zm5.5-3.6a1.1 1.1 0 11-1.1 1.1 1.1 1.1 0 011.1-1.1z" /></svg>
+        </a>
+
+        <a class="dock-item dock-leetcode" href="https://leetcode.com/u/k_rithik04/" target="_blank" rel="noopener noreferrer" title="LeetCode">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 13.9c-.3.3-.8.3-1.1 0L.9 3.5c-.3-.3-.3-.8 0-1.1.3-.3.8-.3 1.1 0L13.2 13.9zM12 24a12 12 0 110-24 12 12 0 010 24zM19.1 10.1l-6.7-6.8c-.3-.3-.8-.3-1.1 0s-.3.8 0 1.1l6.7 6.8c.3.3.8.3 1.1 0s.3-.8 0-1.1z"/></svg>
+        </a>
+    </div>
+
+    <button id="scroll-to-top-btn" aria-label="Scroll to top of page" style="position: fixed; bottom: 20px; right: 20px; z-index: 1001; width: 44px; height: 44px; display: none; align-items: center; justify-content: center; opacity: 0; cursor: pointer; transition: opacity 0.3s, transform 0.2s; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(8px); border: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); border-radius: 50%; color: var(--color-text);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+    
+    <script>
+        (function () {
+            const topNav = document.querySelector('.top-nav');
+            const scrollToTopBtn = document.getElementById('scroll-to-top-btn');
+            const sidebarLinks = document.querySelectorAll('.glass-wrapper a');
+            const sections = document.querySelectorAll('main section');
+            const taglineText = document.getElementById('tagline-text');
+            const statusMessage = document.getElementById('tagline-status');
+            const taglineButton = document.getElementById('tagline-button');
+
+            const SCROLL_THRESHOLD = 100;
+            let lastScrollY = window.scrollY;
+            
+            // --- Placeholder for Gemini API Feature ---
+            async function generateTagline() {
+                const originalText = taglineButton.textContent;
+                
+                // *** NOTE: For this to work live, you MUST set a Gemini API key here. ***
+                const apiKey = ""; 
+
+                if (apiKey === "") {
+                    statusMessage.textContent = "Error: API key is missing. Showing simulation.";
+                }
+
+                // *********** SIMULATION ONLY - Replace with actual API call ***********
+                taglineButton.disabled = true;
+                taglineButton.textContent = "Generating...";
+                statusMessage.textContent = "AI is drafting a creative new tagline... (Simulated)";
+                taglineText.classList.add('opacity-50');
+
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
+                const simulatedTaglines = [
+                    "Where AI meets elegant software architecture.",
+                    "Building intelligence into every digital layer.",
+                    "Innovative solutions at the intersection of ML and design.",
+                    "Code, Coffee, and Cognitive Computing.",
+                    "Engineering the future with data and design."
+                ];
+                const newTagline = simulatedTaglines[Math.floor(Math.random() * simulatedTaglines.length)];
+
+                taglineText.textContent = newTagline;
+                statusMessage.textContent = "Tagline updated successfully! (Simulated)";
+                taglineButton.disabled = false;
+                taglineButton.textContent = originalText;
+                taglineText.classList.remove('opacity-50');
+                setTimeout(() => { statusMessage.textContent = ''; }, 5000);
+                // *******************************************************************
+            }
+            window.generateTagline = generateTagline;
+
+
+            // --- Sidebar Highlight on Scroll ---
+            function highlightActiveSection() {
+                if (sections.length === 0 || sidebarLinks.length === 0) return;
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            sidebarLinks.forEach(link => link.classList.remove('active'));
+                            const activeLink = document.querySelector(`.glass-wrapper a[href="#${entry.target.id}"]`);
+                            if (activeLink) activeLink.classList.add('active');
+                        }
+                    });
+                }, { threshold: 0.5, rootMargin: "-70px 0px -70px 0px" }); 
+
+                sections.forEach(section => observer.observe(section));
+            }
+
+            // --- Dynamic Nav and Scroll to Top Logic ---
+            function scrollToTop() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            function handleScroll() {
+                const currentScrollY = window.scrollY;
+
+                // Nav Hide/Show
+                if (currentScrollY > lastScrollY && currentScrollY > SCROLL_THRESHOLD) {
+                    topNav.classList.add('nav-hidden');
+                } else if (currentScrollY < lastScrollY || currentScrollY < SCROLL_THRESHOLD) {
+                    topNav.classList.remove('nav-hidden');
+                }
+                lastScrollY = currentScrollY;
+
+                // Scroll to Top Button
+                if (currentScrollY > SCROLL_THRESHOLD) {
+                    scrollToTopBtn.style.opacity = '1';
+                    scrollToTopBtn.style.display = 'flex';
+                } else {
+                    scrollToTopBtn.style.opacity = '0';
+                    setTimeout(() => { if (window.scrollY < SCROLL_THRESHOLD) scrollToTopBtn.style.display = 'none'; }, 300);
+                }
+            }
+
+            // --- Initialization ---
+            function initialize() {
+                scrollToTopBtn.addEventListener('click', scrollToTop);
+                window.addEventListener('scroll', handleScroll);
+                highlightActiveSection();
+                handleScroll(); // Initial check
+            }
+
+            window.onload = initialize;
+
+        })(); // End of IIFE
+    </script>
+</body>
+</html>

@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rithik's Portfolio</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ===========================
+           GLOBAL VARIABLES & UTILITIES
+           =========================== */
+        :root {
+            --mac-bg: #F8F8F8; /* Global body background color */
+            --window-bg: #ffffff; /* Default content window color */
+            --glass: rgba(255, 255, 255, 0.6);
+            --color-indigo: #4f46e5; /* Tailwind indigo-600 for reference */
+        }
+
+        /* ===========================
+           GLOBAL LAYOUT & FONT
+           =========================== */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            /* Font stack: Inter, System Fonts (for macOS look) */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--mac-bg);
+            color: #222;
+            display: flex;
+            min-height: 200vh;
+            position: relative;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            overflow-y: auto;
+            /* Subtle background gradients */
+            background: radial-gradient(1200px 600px at 10% 10%, rgba(99, 102, 241, 0.06), transparent 6%),
+                        radial-gradient(900px 400px at 90% 80%, rgba(16, 185, 129, 0.03), transparent 6%),
+                        var(--mac-bg);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===========================
+           BACKGROUND PULSES (BLOBS)
+           =========================== */
+        .pulse {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(180px);
+            opacity: 0.5;
+            z-index: 0;
+            will-change: transform, background-color, filter, opacity;
+            transform: translateZ(0);
+            animation: colorChange 20s infinite alternate,
+                       pulseMove 30s infinite cubic-bezier(0.42, 0, 0.58, 1);
+            mix-blend-mode: multiply;
+        }
+
+        /* Individual Blob Styles and Initial Positioning */
+        .pulse:nth-child(1) {
+            width: 45vw; height: 45vw; min-width: 300px; min-height: 300px;
+            background-color: #5A37B7;
+            top: 10%; left: -5%;
+            animation-delay: 0s, 0s;
+        }
+        .pulse:nth-child(2) {
+            width: 50vw; height: 50vw; min-width: 350px; min-height: 350px;
+            background-color: #00C4CC;
+            bottom: 5%; right: 15%;
+            animation-delay: -7s, -10s;
+        }
+        .pulse:nth-child(3) {
+            width: 45vw; height: 45vw; min-width: 300px; min-height: 300px;
+            background-color: #FF008A;
+            top: 55%; left: 70%;
+            animation-delay: -14s, -20s;
+        }
+
+        @keyframes pulseMove {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            33% { transform: translate(10vw, -10vh) scale(1.05) rotate(10deg); }
+            66% { transform: translate(-5vw, 15vh) scale(0.95) rotate(-5deg); }
+            100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+        }
+
+        @keyframes colorChange {
+            0% { background-color: #5A37B7; }
+            30% { background-color: #00C4CC; }
+            60% { background-color: #FF008A; }
+            100% { background-color: #FFC700; }
+        }
+
+        /* ===========================
+           NAVBAR (Top Floating Pills)
+           =========================== */
+        nav.top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: transform 0.3s ease-out;
+            will-change: transform;
+        }
+        .top-nav.nav-hidden {
+            transform: translateY(-100%);
+        }
+        .top-nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+        }
+        .top-nav a {
+            /* Glassmorphism effect */
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+            will-change: transform, background-color, box-shadow;
+        }
+        .top-nav a:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        .top-nav a[aria-current="page"] {
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+        }
+
+        /* Mobile adjustment for smaller gap in top nav */
+        @media (max-width: 640px) {
+            .top-nav ul {
+                gap: 0.75rem;
+            }
+        }
+
+        /* ===========================
+           SCROLL TO TOP BUTTON
+           =========================== */
+        #scroll-to-top-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            cursor: pointer;
+            transition: opacity 0.3s, visibility 0.3s, transform 0.2s;
+            /* Glassmorphism effect */
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 50%;
+            color: #333;
+        }
+        #scroll-to-top-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        }
+        #scroll-to-top-btn.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ===========================
+           LEFT SIDEBAR (.glass-wrapper)
+           =========================== */
+        .glass-wrapper {
+            display: none; /* Hidden by default for mobile */
+            position: fixed;
+            width: 220px;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            z-index: 900;
+        }
+
+        @media (min-width: 768px) {
+            .glass-wrapper {
+                display: flex; /* Visible on desktop */
+                top: 50%;
+                left: 0;
+                transform: translateY(-50%);
+            }
+        }
+
+        /* SIDEBAR LINKS (Liquid Glass Pills) */
+        .glass-wrapper a {
+            /* Glassmorphism base */
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+            color: #222;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 150px;
+            will-change: transform, background-color, box-shadow;
+        }
+
+        .glass-wrapper a:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.4));
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.5),
+                         0 4px 10px rgba(0, 0, 0, 0.1);
+            transform: scale(1.05);
+        }
+
+        .glass-wrapper a.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.5));
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3),
+                         0 0 10px rgba(0, 0, 0, 0.15);
+            font-weight: 600;
+        }
+
+        /* ===========================
+           FROSTED CONTENT CARD STYLING 
+           (Base for Mac Window & Stat Cards)
+           =========================== */
+        .content-card, .mac-window, .glass-stat-card {
+            /* Shared Glassmorphism properties */
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 14px;
+        }
+        
+        /* Stat Card specific overrides */
+        .glass-stat-card {
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        /* ===========================
+           LIQUID BUTTON STYLES
+           =========================== */
+        .liquid-button {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            will-change: transform, box-shadow;
+        }
+
+        .liquid-secondary-button { /* Added to clean up the inline styles on the button in the HTML */
+            background-color: white; 
+            color: var(--color-indigo);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+        .liquid-secondary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .liquid-primary-button {
+            background: linear-gradient(145deg, rgba(90, 55, 183, 0.8), rgba(0, 196, 204, 0.4));
+            border-color: rgba(255, 255, 255, 0.8);
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        .liquid-primary-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(90, 55, 183, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* ===========================
+           MAIN CONTENT SECTIONS & WRAPPER
+           =========================== */
+        main.main-content-wrapper {
+            flex: 1;
+            /* Initial mobile padding */
+            padding: 90px 20px 20px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        @media (min-width: 768px) {
+            main.main-content-wrapper {
+                /* Desktop padding: accommodates the fixed sidebar */
+                padding: 90px 20px 20px 240px;
+            }
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            background: none;
+            margin-bottom: 2rem;
+            border-radius: 20px;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* ===========================
+           MACOS WINDOW STYLES
+           =========================== */
+        .mac-window {
+            width: 100%;
+            max-width: 980px;
+            background: var(--window-bg); /* Opaque white background for inner window */
+            box-shadow: 0 30px 60px rgba(16, 24, 40, 0.12), 0 6px 20px rgba(2, 6, 23, 0.06);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            margin-top: 40px;
+            margin-bottom: 80px;
+        }
+        
+        /* Titlebar */
+        .titlebar {
+            height: 42px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 14px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.45));
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .traffic { display: flex; gap: 8px; align-items: center; }
+        .traffic .dot {
+            width: 11px; height: 11px; border-radius: 50%;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset;
+            border: 1px solid rgba(0, 0, 0, 0.06); cursor: default;
+        }
+        .dot.red { background: #ff5f57; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+        .title-center {
+            flex: 1; text-align: center; font-weight: 700; color: #0f172a;
+            letter-spacing: -0.4px; font-size: 1rem;
+        }
+
+        /* Window Content Panel */
+        .mac-content { padding: 28px; }
+        .panel {
+            border-radius: 12px;
+            padding: 24px;
+            background: linear-gradient(180deg, rgba(249, 250, 251, 0.8), rgba(247, 248, 250, 0.75));
+            border: 1px solid rgba(2, 6, 23, 0.03);
+            text-align: left; /* Override section center alignment */
+        }
+        /* Note: Panel headings are now using Tailwind classes in HTML for better control */
+
+        /* Dock - frosted, centered, and floating */
+        .mac-dock {
+            /* **FIX HERE: Changed from 'absolute' to 'fixed'** */
+            position: fixed; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            bottom: 18px;
+            display: flex; 
+            align-items: center; 
+            padding: 10px 14px; 
+            gap: 12px;
+            border-radius: 999px; 
+            background: rgba(17, 24, 39, 0.06);
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            transition: box-shadow .18s ease;
+            z-index: 950; /* Ensuring it sits above general content */
+        }
+        .mac-dock:hover { box-shadow: 0 18px 50px rgba(2, 6, 23, 0.12); }
+        .dock-item {
+            width: 48px; height: 48px; border-radius: 12px; display: flex;
+            align-items: center; justify-content: center; transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s;
+            color: #fff; flex-shrink: 0; position: relative;
+        }
+        .dock-item svg { width: 24px; height: 24px; display: block; fill: currentColor; }
+        .dock-item:hover {
+            transform: translateY(-10px) scale(1.25);
+            box-shadow: 0 14px 30px rgba(2, 6, 23, 0.18); z-index: 30;
+        }
+        .dock-github { background: #111; border-radius: 12px; }
+        .dock-linkedin { background: #0A66C2; border-radius: 12px; }
+        .dock-instagram { background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af); border-radius: 50%; } /* Instagram is circular */
+        .dock-leetcode { background: #FFA116; color: #111; border-radius: 50%; } /* LeetCode is circular */
+        .dock-label {
+            position: absolute; bottom: calc(100% + 10px); left: 50%;
+            transform: translateX(-50%); background: rgba(6, 8, 15, 0.88);
+            color: #fff; padding: 6px 8px; border-radius: 6px; font-size: 12px;
+            white-space: nowrap; opacity: 0; pointer-events: none;
+            transition: opacity .12s ease, transform .12s ease;
+        }
+        .dock-item:hover .dock-label { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+        
+        /* Dock mobile adjustments */
+        @media (max-width: 640px) {
+            .mac-dock { bottom: 12px; gap: 8px; padding: 8px; }
+            .dock-item { width: 40px; height: 40px; }
+            .dock-item svg { width: 20px; height: 20px; }
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div class="pulse" aria-hidden="true"></div>
+    <div class="pulse" aria-hidden="true"></div>
+    <div class="pulse" aria-hidden="true"></div>
+
+    <nav class="top-nav" role="navigation" aria-label="Main navigation">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="contacts.html">Contacts</a></li>
+        </ul>
+    </nav>
+
+    <aside class="glass-wrapper" aria-label="Sidebar navigation">
+        
+        <a href="#about">About Me</a>
+        <a href="#experience">Experience</a>
+        <a href="#education">Education</a>
+        <a href="#projects">Projects</a>
+        <a href="#certifications">Certifications</a>
+    </aside>
+
+    <main class="main-content-wrapper">
+        <section id="about">
+            <div class="mac-window">
+                <header class="titlebar">
+                    <div class="traffic" aria-hidden="true">
+                        <div class="dot red" title="Close"></div>
+                        <div class="dot yellow" title="Minimize"></div>
+                        <div class="dot green" title="Maximize"></div>
+                    </div>
+                    <div class="title-center">Hello</div>
+                    <div style="width:56px"></div> </header>
+
+                <div class="mac-content">
+                    <div class="panel">
+                        <hgroup class="mb-6">
+                            <p class="text-4xl sm:text-5xl font-extrabold text-indigo-800" style="margin:0;line-height:1;">AI | ML Engineer</p>
+                            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-2 mb-4">Rithik.</h1>
+                            <p id="tagline-text" class="text-gray-700 text-lg font-semibold mb-2">
+                                Crafting intuitive and aesthetically pleasing digital experiences.
+                            </p>
+                            <p class="text-gray-600 text-base leading-relaxed">
+                                I'm a Computer Science Undergraduate at the University of Kelaniya, specializing in Artificial Intelligence. I work on projects that combine AI, Machine Learning, and Software Development — building scalable, efficient, and user-friendly systems.
+                            </p>
+                            
+                            <p id="tagline-status" class="text-center mt-2 text-sm font-medium text-indigo-600 min-h-[1.25rem]"></p>
+                        </hgroup>
+</div>
+                </div>
+
+                
+            </div>
+        </section>
+
+        <section>
+        </section> 
+
+        
+        <section id="experience" class="text-4xl text-gray-600">Experience Content Here...</section>
+        <section id="education" class="text-4xl text-gray-600">Education Content Here...</section>
+        <section id="projects" class="text-4xl text-gray-600">Projects Content Here...</section>
+        <section id="certifications" class="text-4xl text-gray-600">Certifications Content Here...</section>
+    </main>
+    
+    <div class="mac-dock" role="navigation" aria-label="Social dock">
+        <a class="dock-item dock-github" href="https://github.com/k_rithik04" target="_blank" rel="noopener noreferrer" title="GitHub">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55 0-.27-.01-1.02-.02-2-3.2.7-3.88-1.38-3.88-1.38-.53-1.36-1.3-1.72-1.3-1.72-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.74 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.56-.29-5.25-1.28-5.25-5.71 0-1.26.45-2.29 1.19-3.09-.12-.3-.52-1.51.11-3.15 0 0 .98-.31 3.22 1.19a11.1 11.1 0 012.94-.4c1 .01 2.01.13 2.95.39 2.23-1.5 3.21-1.19 3.21-1.19.64 1.64.24 2.85.12 3.15.74.8 1.19 1.83 1.19 3.09 0 4.44-2.69 5.42-5.25 5.7.42.36.79 1.09.79 2.2 0 1.59-.01 2.87-.01 3.26 0 .3.2.67.79.56C20.71 21.38 24 17.07 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+            <span class="dock-label">GitHub</span>
+        </a>
+
+        <a class="dock-item dock-linkedin" href="https://www.linkedin.com/in/krithik04" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.59c0-1.34-.47-2.25-1.66-2.25-1.26 0-1.96.84-1.96 2.25v5.59h-3.55V9.6h3.41v1.63c.48-.92 1.49-1.73 3.04-1.73 2.4 0 4.24 1.56 4.24 4.92v5.03zM5.34 8.68a2.05 2.05 0 110-4.1 2.05 2.05 0 010 4.1zM7.11 20.45H3.57V9.6h3.54v10.85z"/></svg>
+            <span class="dock-label">LinkedIn</span>
+        </a>
+
+        <a class="dock-item dock-instagram" href="https://www.instagram.com/k_rithik04/" target="_blank" rel="noopener noreferrer" title="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 6.5A4.5 4.5 0 1016.5 13 4.5 4.5 0 0012 8.5zm5.5-3.6a1.1 1.1 0 11-1.1 1.1 1.1 1.1 0 011.1-1.1z" /></svg>
+            <span class="dock-label">Instagram</span>
+        </a>
+
+        <a class="dock-item dock-leetcode" href="https://leetcode.com/u/k_rithik04/" target="_blank" rel="noopener noreferrer" title="LeetCode">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 13.9c-.3.3-.8.3-1.1 0L.9 3.5c-.3-.3-.3-.8 0-1.1.3-.3.8-.3 1.1 0L13.2 13.9zM12 24a12 12 0 110-24 12 12 0 010 24zM19.1 10.1l-6.7-6.8c-.3-.3-.8-.3-1.1 0s-.3.8 0 1.1l6.7 6.8c.3.3.8.3 1.1 0s.3-.8 0-1.1z"/></svg>
+            <span class="dock-label">LeetCode</span>
+        </a>
+    </div>
+
+    <button id="scroll-to-top-btn" aria-label="Scroll to top of page">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+    
+    <script>
+        (function () {
+            // ... (Your JavaScript code remains here, it doesn't need modification for this fix) ...
+            
+            // Cache DOM elements
+            const taglineText = document.getElementById('tagline-text');
+            const statusMessage = document.getElementById('tagline-status');
+            const taglineButton = document.getElementById('tagline-button');
+            const topNav = document.querySelector('.top-nav');
+            const scrollToTopBtn = document.getElementById('scroll-to-top-btn');
+            const sidebarLinks = document.querySelectorAll('.glass-wrapper a');
+            const sections = document.querySelectorAll('main section');
+
+            // Constants
+            const SCROLL_THRESHOLD = 100;
+            const MAX_RETRIES = 5;
+            let lastScrollY = window.scrollY;
+
+            // --- API Fetch Utility with Exponential Backoff ---
+            async function exponentialBackoffFetch(url, options) {
+                // NOTE: API Key is typically loaded from an environment variable, not hardcoded.
+                const apiKey = "";
+                const finalUrl = `${url}?key=${apiKey}`;
+
+                for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+                    try {
+                        const response = await fetch(finalUrl, options);
+                        if (!response.ok) {
+                            // Handle Rate Limiting (429) and retry
+                            if (response.status === 429 && attempt < MAX_RETRIES - 1) {
+                                const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                                console.log(`Rate limit exceeded. Retrying in ${Math.round(delay / 1000)}s...`);
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                continue;
+                            }
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response; // Success
+                    } catch (error) {
+                        if (attempt === MAX_RETRIES - 1) {
+                            throw error; // Max retries reached
+                        }
+                        console.warn(`Fetch attempt ${attempt + 1} failed:`, error.message);
+                    }
+                }
+            }
+
+            // --- Gemini API Feature: Generate a new tagline ---
+            async function generateTagline() {
+                const originalText = taglineButton.textContent;
+
+                if (apiKey === "") {
+                    statusMessage.textContent = "Error: Please set your Gemini API key in the script.";
+                    setTimeout(() => { statusMessage.textContent = ''; }, 5000);
+                    return;
+                }
+                
+                taglineButton.disabled = true;
+                taglineButton.textContent = "Generating...";
+                statusMessage.textContent = "AI is drafting a creative new tagline...";
+                taglineText.classList.add('opacity-50');
+
+                try {
+                    const systemPrompt = "You are a world-class creative director. Generate a single, concise, professional, and memorable tagline (under 10 words) for a design portfolio. The tagline should emphasize digital experience, innovation, and aesthetics. Do not use quotation marks.";
+                    const userQuery = "Generate a new portfolio tagline.";
+
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
+                    const payload = {
+                        contents: [{ parts: [{ text: userQuery }] }],
+                        config: {
+                            systemInstruction: systemPrompt
+                        }
+                    };
+
+                    const response = await exponentialBackoffFetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                    if (generatedText) {
+                        // Clean up and display text
+                        taglineText.textContent = generatedText.trim().replace(/^['"]|['"]$/g, '');
+                        statusMessage.textContent = "Tagline updated successfully!";
+                    } else {
+                        throw new Error("API response was empty or blocked.");
+                    }
+
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    statusMessage.textContent = "Error: Could not connect to generator. Check console for details.";
+                    // Revert to default text on failure
+                    taglineText.textContent = "Crafting intuitive and aesthetically pleasing digital experiences.";
+                } finally {
+                    taglineButton.disabled = false;
+                    taglineButton.textContent = originalText;
+                    taglineText.classList.remove('opacity-50');
+                    setTimeout(() => { statusMessage.textContent = ''; }, 5000);
+                }
+            }
+            // Expose to global scope for HTML onclick
+            window.generateTagline = generateTagline;
+
+
+            // --- Top Navigation Highlighting Logic (For multi-page navigation) ---
+            function highlightActiveLink() {
+                const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+
+                document.querySelectorAll('.top-nav a').forEach(link => {
+                    const linkTarget = link.getAttribute('href');
+
+                    if (linkTarget === currentPath) {
+                        link.setAttribute('aria-current', 'page');
+                    } else {
+                        link.removeAttribute('aria-current');
+                    }
+                });
+            }
+
+            // --- Sidebar Highlight on Scroll (For internal sections) ---
+            function highlightActiveSection() {
+                // Only run this logic if we are on a page with internal sections (like index.html)
+                if (sections.length === 0 || sidebarLinks.length === 0) return;
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        // Check if the section is intersecting a significant portion (threshold)
+                        if (entry.isIntersecting) {
+                            sidebarLinks.forEach(link => link.classList.remove('active'));
+                            const activeLink = document.querySelector(`.glass-wrapper a[href="#${entry.target.id}"]`);
+                            if (activeLink) activeLink.classList.add('active');
+                        }
+                    });
+                }, { threshold: 0.6, rootMargin: "-70px 0px -70px 0px" }); // Adjusted rootMargin
+
+                sections.forEach(section => observer.observe(section));
+            }
+
+            // --- Dynamic Nav and Scroll to Top Logic ---
+            function scrollToTop() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            function handleScroll() {
+                const currentScrollY = window.scrollY;
+
+                // 1. Sticky/Hidden Nav Logic: Hide on scroll down, show on scroll up or near top
+                if (currentScrollY > lastScrollY && currentScrollY > SCROLL_THRESHOLD) {
+                    topNav.classList.add('nav-hidden');
+                } else if (currentScrollY < lastScrollY || currentScrollY < SCROLL_THRESHOLD) {
+                    topNav.classList.remove('nav-hidden');
+                }
+
+                lastScrollY = currentScrollY;
+
+                // 2. Scroll to Top Button Logic
+                if (currentScrollY > SCROLL_THRESHOLD) {
+                    scrollToTopBtn.classList.add('show');
+                } else {
+                    scrollToTopBtn.classList.remove('show');
+                }
+            }
+
+            // --- Initialization ---
+            function initialize() {
+                scrollToTopBtn.addEventListener('click', scrollToTop);
+                window.addEventListener('scroll', handleScroll);
+
+                // Run on load
+                highlightActiveLink();
+                highlightActiveSection();
+                handleScroll(); // Initial check for scroll button visibility
+            }
+
+            window.onload = initialize;
+
+        })(); // End of IIFE
+    </script>
+</body>
+</html>

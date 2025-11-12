@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <!-- ESSENTIAL: Ensures the page scales correctly on all devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio Layout — Home</title>
+
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Font (Inter is retained) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ===========================
+            GLOBAL LAYOUT
+            =========================== */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F8F8; /* Very light background for white content */
+            color: #222;
+            display: flex;
+            min-height: 200vh; /* Retain height for scrollable sections */
+            position: relative;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            overflow-y: auto; 
+        }
+
+        /* ===========================
+            BACKGROUND COLOR PULSES (APPLE-INSPIRED)
+            =========================== */
+        .pulse {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(180px);
+            opacity: 0.5; 
+            z-index: 0;
+            
+            will-change: transform, background-color, filter, opacity; 
+            transform: translateZ(0); 
+
+            animation: colorChange 20s infinite alternate, 
+                        pulseMove 30s infinite cubic-bezier(0.42, 0, 0.58, 1);
+            mix-blend-mode: multiply; 
+        }
+
+        /* Individual Blob Styles and Initial Positioning (remains fluid) */
+        .pulse:nth-child(1) {
+            width: 45vw; height: 45vw; min-width: 300px; min-height: 300px;
+            background-color: #5A37B7; 
+            top: 10%; left: -5%;
+            animation-delay: 0s, 0s;
+        }
+        .pulse:nth-child(2) {
+            width: 50vw; height: 50vw; min-width: 350px; min-height: 350px;
+            background-color: #00C4CC; 
+            bottom: 5%; right: 15%;
+            animation-delay: -7s, -10s;
+        }
+        .pulse:nth-child(3) {
+            width: 45vw; height: 45vw; min-width: 300px; min-height: 300px;
+            background-color: #FF008A; 
+            top: 55%; left: 70%;
+            animation-delay: -14s, -20s;
+        }
+        
+        @keyframes pulseMove {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            33% { transform: translate(10vw, -10vh) scale(1.05) rotate(10deg); }
+            66% { transform: translate(-5vw, 15vh) scale(0.95) rotate(-5deg); }
+            100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+        }
+
+        @keyframes colorChange {
+            0% { background-color: #5A37B7; } 
+            30% { background-color: #00C4CC; } 
+            60% { background-color: #FF008A; } 
+            100% { background-color: #FFC700; } 
+        }
+
+        /* ===========================
+            TOP NAVBAR (Floating Pills Container)
+            =========================== */
+        nav.top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            /* ADDED: Transition for the slide effect */
+            transition: transform 0.3s ease-out; 
+            will-change: transform;
+        }
+        
+        /* ADDED: Class to hide the nav when scrolling down */
+        .top-nav.nav-hidden {
+            transform: translateY(-100%);
+        }
+
+        /* Horizontal List for Nav Pills */
+        .top-nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Mobile adjustment for smaller gap in top nav */
+        @media (max-width: 640px) {
+             .top-nav ul {
+                gap: 0.75rem;
+            }
+        }
+
+
+        /* TOP NAV LINKS (Liquid Glass Pills) */
+        .top-nav a {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+            
+            will-change: transform, background-color, box-shadow; 
+        }
+
+        .top-nav a:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .top-nav a[aria-current="page"] {
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+        }
+        
+        /* ===========================
+            SCROLL TO TOP BUTTON STYLING (NEW)
+            =========================== */
+        #scroll-to-top-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001; /* Above everything else */
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            cursor: pointer;
+            transition: opacity 0.3s, visibility 0.3s, transform 0.2s;
+            
+            /* Apply liquid/glass style */
+            background: rgba(255, 255, 255, 0.4); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 50%;
+            color: #333;
+        }
+
+        #scroll-to-top-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        }
+        
+        #scroll-to-top-btn.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ===========================
+            LEFT SIDEBAR (.glass-wrapper) 
+            =========================== */
+        .glass-wrapper {
+            display: none; /* Mobile: Hide sidebar by default */
+            position: fixed; 
+            width: 220px;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            z-index: 900;
+        }
+        
+        /* Desktop (md breakpoint) styles for sidebar */
+        @media (min-width: 768px) {
+            .glass-wrapper {
+                display: flex; 
+                top: 50%;
+                left: 0;
+                transform: translateY(-50%);
+            }
+        }
+
+        /* SIDEBAR LINKS (Liquid Glass Pills) */
+        .glass-wrapper a {
+            background: rgba(255, 255, 255, 0.15); 
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+            text-decoration: none;
+            color: #222;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 150px;
+            
+            will-change: transform, background-color, box-shadow; 
+        }
+        
+        .glass-wrapper a:hover {
+            background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4));
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: inset 0 0 4px rgba(255,255,255,0.5),
+                        0 4px 10px rgba(0,0,0,0.1); 
+            transform: scale(1.05);
+        }
+
+        .glass-wrapper a.active {
+            background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.5));
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: inset 0 0 6px rgba(255,255,255,0.3),
+                        0 0 10px rgba(0,0,0,0.15);
+            font-weight: 600;
+        }
+
+        /* ===========================
+            FROSTED CONTENT CARD STYLING 
+            =========================== */
+        .content-card {
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            background-color: rgba(255, 255, 255, 0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.9); 
+        }
+        
+        /* ===========================
+            LIQUID BUTTON STYLES (Retained)
+            =========================== */
+        .liquid-button {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            
+            will-change: transform, box-shadow; 
+        }
+
+        .liquid-primary-button {
+            background: linear-gradient(145deg, rgba(90, 55, 183, 0.8), rgba(0, 196, 204, 0.4));
+            border-color: rgba(255, 255, 255, 0.8);
+            color: white; 
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .liquid-primary-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(90, 55, 183, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .liquid-secondary-button {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+            border-color: rgba(255, 255, 255, 0.9);
+            color: #222; 
+        }
+
+        .liquid-secondary-button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15), inset 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* ===========================
+            MAIN CONTENT SECTIONS
+            =========================== */
+        main {
+            flex: 1;
+            /* Mobile Default: Padding on all sides */
+            padding: 90px 20px 20px 20px; 
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Desktop (md breakpoint) styles for content shift */
+        @media (min-width: 768px) {
+            main {
+                /* Add 240px space for the sidebar on the left */
+                padding-left: 240px; 
+                padding-top: 90px;
+                padding-right: 20px;
+                padding-bottom: 20px;
+            }
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            background: none; 
+            margin-bottom: 2rem;
+            border-radius: 20px;
+        }
+
+        .loading-text {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===========================
+        MOVING COLOR PULSES (behind)
+        =========================== -->
+    <div class="pulse"></div>
+    <div class="pulse"></div>
+    <div class="pulse"></div>
+
+    <!-- ===========================
+        FIXED TOP NAV (Now dynamic/hiding on scroll down)
+        =========================== -->
+    <nav class="top-nav" role="navigation" aria-label="Main navigation">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="contacts.html">Contacts</a></li>
+        </ul>
+    </nav>
+
+
+    
+    
+    <!-- ===========================
+        SCROLL TO TOP BUTTON (NEW)
+        =========================== -->
+    <button id="scroll-to-top-btn" aria-label="Scroll to top of page">
+        <!-- SVG for a clean up arrow -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+
+    <!-- ===========================
+        INLINE JS + GEMINI API LOGIC
+        =========================== -->
+    <script>
+        // Function for exponential backoff fetch (mandatory for robust API calls)
+        async function exponentialBackoffFetch(url, options, maxRetries = 5) {
+            const apiKey = ""; 
+            const finalUrl = `${url}?key=${apiKey}`;
+            
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    const response = await fetch(finalUrl, options);
+                    if (!response.ok) {
+                        if (response.status === 429 && attempt < maxRetries - 1) {
+                            const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                            console.log(`Rate limit exceeded. Retrying in ${Math.round(delay / 1000)}s...`);
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            continue; // Retry
+                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response; // Success
+                } catch (error) {
+                    if (attempt === maxRetries - 1) {
+                        throw error; // Max retries reached
+                    }
+                    console.warn(`Fetch attempt ${attempt + 1} failed:`, error.message);
+                }
+            }
+        }
+
+        // Gemini API feature: Generate a new tagline
+        async function generateTagline() {
+            const taglineText = document.getElementById('tagline-text');
+            const status = document.getElementById('tagline-status');
+            const button = document.getElementById('tagline-button');
+            const originalText = button.textContent;
+            
+            button.disabled = true;
+            button.textContent = "Generating...";
+            status.textContent = "AI is drafting a creative new tagline...";
+            taglineText.classList.add('opacity-50');
+
+            try {
+                const systemPrompt = "You are a world-class creative director. Generate a single, concise, professional, and memorable tagline (under 10 words) for a design portfolio. The tagline should emphasize digital experience, innovation, and aesthetics. Do not use quotation marks.";
+                const userQuery = "Generate a new portfolio tagline.";
+                
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                };
+
+                const response = await exponentialBackoffFetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (generatedText) {
+                    taglineText.textContent = generatedText.trim().replace(/^['"]|['"]$/g, '');
+                    status.textContent = "Tagline updated successfully!";
+                } else {
+                    throw new Error("API response was empty.");
+                }
+
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                status.textContent = "Error: Could not connect to generator. Check console for details.";
+                taglineText.textContent = "Crafting intuitive and aesthetically pleasing digital experiences."; 
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+                taglineText.classList.remove('opacity-50');
+                setTimeout(() => { status.textContent = ''; }, 5000);
+            }
+        }
+
+
+        // --- UNIVERSAL Nav Highlighting Logic (Fixed for multi-page) ---
+        function highlightActiveLink() {
+            const topLinks = document.querySelectorAll('.top-nav a');
+            // Get the current file name (e.g., 'index.html', 'blog.html')
+            const currentPath = window.location.pathname.split('/').pop() || 'index.html'; 
+            
+            topLinks.forEach(link => {
+                const linkTarget = link.getAttribute('href');
+                
+                // Compare link's href to the current file name
+                if (linkTarget === currentPath) {
+                    link.setAttribute('aria-current', 'page');
+                } else {
+                    link.removeAttribute('aria-current');
+                }
+            });
+        }
+        
+        // --- Sidebar highlight on scroll (only for internal sections on this page) ---
+        function highlightActiveSection() {
+            const sections = document.querySelectorAll('main section');
+            const sidebarLinks = document.querySelectorAll('.glass-wrapper a');
+
+            // Only run if the sidebar is visible (i.e., this is the index.html page)
+            if (sections.length > 0) {
+                 const observer = new IntersectionObserver((entries) => {
+                     entries.forEach(entry => {
+                         if (entry.isIntersecting) {
+                             sidebarLinks.forEach(link => link.classList.remove('active'));
+                             const activeLink = document.querySelector(`.glass-wrapper a[href="#${entry.target.id}"]`);
+                             if (activeLink) activeLink.classList.add('active');
+                         }
+                     });
+                 }, { threshold: 0.6, rootMargin: "-70px 0px -70px 0px" });
+
+                 sections.forEach(section => observer.observe(section));
+            }
+        }
+        
+        // --- NEW: Dynamic Nav and Scroll to Top Logic ---
+        let lastScrollY = window.scrollY;
+        const topNav = document.querySelector('.top-nav');
+        const scrollToTopBtn = document.getElementById('scroll-to-top-btn');
+        const SCROLL_THRESHOLD = 100; // Distance to scroll down before hiding/showing nav and showing button
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function handleScroll() {
+            const currentScrollY = window.scrollY;
+
+            // 1. Sticky/Hidden Nav Logic: Hide on scroll down, show on scroll up or near top
+            if (currentScrollY > lastScrollY && currentScrollY > SCROLL_THRESHOLD) {
+                // Scrolling Down (and past threshold): Hide Nav
+                topNav.classList.add('nav-hidden');
+            } else if (currentScrollY < lastScrollY || currentScrollY < SCROLL_THRESHOLD) {
+                // Scrolling Up OR near the top: Show Nav
+                topNav.classList.remove('nav-hidden');
+            }
+            
+            lastScrollY = currentScrollY;
+            
+            // 2. Scroll to Top Button Logic
+            if (currentScrollY > SCROLL_THRESHOLD) {
+                scrollToTopBtn.classList.add('show');
+            } else {
+                scrollToTopBtn.classList.remove('show');
+            }
+        }
+
+        // Add event listeners outside window.onload for immediate effect
+        scrollToTopBtn.addEventListener('click', scrollToTop);
+        window.addEventListener('scroll', handleScroll);
+
+
+        // Run all required functions on load
+        window.onload = function() {
+            highlightActiveLink();
+            highlightActiveSection();
+            // Initial check to correctly position nav and button if page loads scrolled down
+            handleScroll(); 
+        };
+
+    </script>
+
+  <main>
+    <div class="feed-container">
+      <iframe 
+        src="https://widget.taggbox.com/2203560?postId=2483295&caption=1&header=1" 
+        scrolling="no">
+      </iframe>
+    </div>
+  </main>
+
+  <!-- Scroll-to-top button -->
+  <button id="scroll-to-top-btn" aria-label="Scroll to top of page">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
+
+  <script>
+    // Scroll behavior for nav and button
+    let lastScrollY = window.scrollY;
+    const topNav = document.querySelector('.top-nav');
+    const scrollToTopBtn = document.getElementById('scroll-to-top-btn');
+    const SCROLL_THRESHOLD = 100;
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function handleScroll() {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > SCROLL_THRESHOLD) {
+        topNav.classList.add('nav-hidden');
+      } else if (currentScrollY < lastScrollY || currentScrollY < SCROLL_THRESHOLD) {
+        topNav.classList.remove('nav-hidden');
+      }
+
+      lastScrollY = currentScrollY;
+
+      if (currentScrollY > SCROLL_THRESHOLD) {
+        scrollToTopBtn.classList.add('show');
+      } else {
+        scrollToTopBtn.classList.remove('show');
+      }
+    }
+
+    scrollToTopBtn.addEventListener('click', scrollToTop);
+    window.addEventListener('scroll', handleScroll);
+  </script>
+
+</body>
+</html>
